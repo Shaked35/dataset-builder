@@ -2,6 +2,9 @@ package com.builder;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @ManagedBean
 @SessionScoped
@@ -28,8 +31,10 @@ public class Login {
         this.password = password;
     }
 
-    public void validateUsernamePassword() {
+    public void login() throws IOException {
         System.out.println(this.password);
+        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+        response.sendRedirect("http://localhost:8080/filters.xhtml");
     }
 }
 
