@@ -1,24 +1,51 @@
-html {
+.processTable {
+    border-collapse:collapse;
+    border:1px solid #000000;
     position: absolute;
-    top: 40%;
+    top: 50%;
     left: 18%;
-    margin: 0 -50% 0 0;
-    transform: translate(-50%, -50%);
-    background: url("/images/background.gif") no-repeat fixed center;
-    -moz-background-size: cover;
-    -webkit-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
 }
 
-body {
-    background: url("/images/background.gif") no-repeat fixed center;
-    /*color: white;*/
-    /*padding: 5px;*/
-    /*text-align: center;*/
-    /*text-decoration: none;*/
-    /*margin-top: 5px;*/
-    /*border-radius: 5px;*/
-    /*width: 100%;*/
-    /*display: inline-block;*/
+.processTableHeader {
+    text-align:center;
+    background:none repeat scroll 0 0 #B5B5B5;
+    border-bottom:1px solid #000000;
+    padding:2px;
+}
+
+.processTableOddRow {
+    text-align:center;
+    background:none repeat scroll 0 0 #FFFFFF;
+}
+
+.processTableEvenRow {
+    text-align:center;
+    background:none repeat scroll 0 0 #D3D3D3;
+}
+
+.tablePosition{
+    transform: translate(-50%, -50%);
+    position: absolute;
+    top: 50%;
+    left: 18%;
+    margin: 0 -50% 0 0;
+}
+
+.leftComponent{
+    transform: translate(-50%, -50%);
+    position: absolute;
+    top: 50%;
+    left: 18%;
+    margin: 0 -50% 0 0;
+}
+
+.mainComponent{
+    transform: translate(-50%, -50%);
+    position: absolute;
+    top: 50%;
+    left: 18%;
+    margin: 0 -50% 0 0;
+    font-weight: bold;
+    text-align:center;
+    color: whitesmoke;
 }

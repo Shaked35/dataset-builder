@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+<h:head>
+    <title>login</title>
+</h:head>
+<h:body style="background: url('images/back.gif') no-repeat fixed center;
+    background-size: cover;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    top: 20%;
+    left: 18%;
+    color: whitesmoke;">
+    <h:form enctype="multipart/form-data">
+        <h:panelGrid style="display:block; font-size:35px; font-weight: bold;
+        font-family: 'Lucida Console', 'Courier New', monospace">
+            <h3>Upload File</h3>
+        </h:panelGrid>
+        <h:panelGrid style="font-size:20px;margin-left:10%;">
+            <h:outputText value="Please upload your csv"/>
+        </h:panelGrid>
+        <h:panelGrid style="font-size:20px; margin-left:10%;margin-top:10px;">
+        <h:inputFile id="file" value="#{myDataset.file}"/>
+            <h:message for="file"/>
+        </h:panelGrid>
+
+        <h:panelGrid style="margin-left:30%; margin-top:10px;">
+        <h:commandButton action="#{myDataset.initializeFile}" value="Upload" style="font-size:15px; font-weight: bold;"/>
+        </h:panelGrid>
+
+    </h:form>
+</h:body>
+</html>

@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+<style type="text/css">
+    html {
+        position: absolute;
+        top: 50%;
+        left: 18%;
+        margin: 0 -50% 0 0;
+        transform: translate(-50%, -50%);
+        background: url("images/a.gif") no-repeat fixed center;
+        -moz-background-size: cover;
+        -webkit-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+    }
+</style>
+<h:head>
+    <title>login</title>
+</h:head>
+<h:body>
+    <h3>Add Filters</h3>
+    <h:form>
+        <h:outputText value="Header Name" />
+        <h:selectOneMenu value="#{myDataset.selectedHeader}">
+            <f:selectItems value="#{myDataset.headers}" />
+        </h:selectOneMenu>
+        <br/><br/>
+        <h:outputText value="Transformer" />
+        <h:selectOneMenu value="#{myDataset.selectedTransformerType}">
+            <f:selectItems value="#{myDataset.getTypeOptions('transformers')}" />
+        </h:selectOneMenu>
+        <br/><br/>
+        <h:outputText value="Filter Value" />
+        <h:inputText id="filterValue" value="#{myDataset.filterValue}"/>
+        <br/><br/>
+        <h:commandButton action="#{myDataset.addNewFilter}" value="Preview"  style="margin-bottom: 100px;"/>
+        <h:commandButton action="#{myDataset.addNewFilter}" value="Add Filter"/>
+        <h:commandButton action="#{myDataset.finishedFilters}" value="Next"/>
+    </h:form>
+</h:body>
+</html>

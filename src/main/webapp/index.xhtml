@@ -1,40 +1,31 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns:h="http://xmlns.jcp.org/jsf/html">
 
-<style type="text/css">
-    html {
-        position: absolute;
-        top: 40%;
-        left: 18%;
-        margin: 0 -50% 0 0;
-        transform: translate(-50%, -50%);
-        background: url("images/background.gif") no-repeat fixed center;
-        -moz-background-size: cover;
-        -webkit-background-size: cover;
-        -o-background-size: cover;
-        background-size: cover;
-    }
-</style>
+
 <h:head>
     <title>login</title>
 </h:head>
-<h:body>
-
+<h:body style="background: url('images/infinity.gif') no-repeat fixed center; background-size: cover;
+    margin-left: 30%; margin-right:20%;margin-top:50px;font-weight: bold;text-align:center; color: whitesmoke">
     <h:form>
-        <h3>JSF Login Logout</h3>
-        <h:outputText value="Username" />
-        <h:inputText id="username" value="#{login.username}"/>
-        <h:message for="username"/>
-        <br/><br/>
+        <h:panelGrid style="display:block; font-size:30px;
+        font-family: 'Lucida Console', 'Courier New', monospace">
+            <h3>Wellcom To Dataset Builder</h3>
+        </h:panelGrid>
 
-        <h:outputText value="Password" />
-        <h:inputSecret id="password" value="#{login.password}"/>
-        <h:message for="password"/>
-        <br/><br/>
-
-        <h:commandButton action="#{login.login}" value="Login"/>
-        <h:commandButton action="filter.xhtml?faces-redirect=true" class="btn btn-info btn-block"  value="Sign up"/>
+        <h:panelGrid id="panel" columns="2" border="1" cellpadding="10" cellspacing="1" styleClass="ptable"
+                     style="margin-left: 20%;">
+            <h:outputText value="Username"/>
+            <h:inputText id="username" value="#{login.username}"/>
+            <h:outputText value="Password"/>
+            <h:inputSecret id="password" value="#{login.password}"/>
+        </h:panelGrid>
+        <h:panelGroup id="button" style="display:block;margin-left: 10%; margin-right:30%;margin-top:15px;">
+            <h:commandButton action="#{login.login}" value="Login"/>
+            <h:commandButton action="filter.xhtml?faces-redirect=true" class="btn btn-info btn-block" value="Sign Up"/>
+        </h:panelGroup>
     </h:form>
 </h:body>
 </html>

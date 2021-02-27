@@ -1,4 +1,4 @@
-package com.builder;
+package com.builder.processes;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -34,7 +34,7 @@ public class Login {
     public void login() throws IOException {
         System.out.println(this.password);
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-        response.sendRedirect("http://localhost:8080/filters.xhtml");
+        response.sendRedirect("http://localhost:8080/newFile.xhtml");
     }
 }
 
