@@ -2,13 +2,16 @@ package com.builder.processes;
 
 import org.bson.Document;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class Transformers implements AbstractProcess {
+    private List<TableRow> rows = new ArrayList<>();
+
     @Override
-    public void add(String header, String filterType, String filterValue) {
+    public void add(String header, String conditionType, String conditionValue) {
 
     }
 
@@ -20,6 +23,11 @@ public class Transformers implements AbstractProcess {
     @Override
     public List<TableRow> getTablesRows() {
         return this.rows;
+    }
+
+    @Override
+    public void remove(TableRow row) {
+
     }
 
     @Override

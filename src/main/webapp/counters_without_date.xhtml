@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core">
+<h:head>
+    <title>login</title>
+</h:head>
+<h:body style="background: url('images/back.gif') no-repeat fixed center;
+    background-size: cover;color: whitesmoke;">
+    <h:panelGrid style="transform: translate(-50%, -50%);
+    position: absolute;
+    top: 40%;
+    left: 25%;">
+        <h:panelGrid style="display:block; font-size:35px; font-weight: bold;
+        font-family: 'Lucida Console', 'Courier New', monospace">
+            <h3>Add Counters</h3>
+        </h:panelGrid>
+
+        <h:form styleClass="tablePosition">
+            <h:outputText value="For counters option you must have 'date' column in your dataset!" style="background-color: black;
+            color: red; font-weight: bold; font-size:24px;"/>
+            <br/><br/>
+            <br/><br/>
+            <br/><br/>
+            <h:outputText value="____________________________________________________________________________________"/>
+            <br/><br/>
+            <h:commandButton action="#{myDataset.previous('counters')}" value="Preview"
+                             style="font-size:15px; font-weight: bold;"/>
+            <h:commandButton action="#{myDataset.next('counters')}" value="Next"
+                             style="font-size:15px; font-weight: bold;"/>
+
+        </h:form>
+    </h:panelGrid>
+</h:body>
+</html>

@@ -14,10 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 @ManagedBean
@@ -30,15 +27,16 @@ public class MyDataset {
     private String selectedType;
     private String value;
     private String selectedHeader;
-    private Filters filters = new Filters();
-    private Transformers transformers = new Transformers();
-    private Counters counters = new Counters();
-    private HashMap<String, AbstractProcess> processes = new HashMap<String, AbstractProcess>() {{
-        put("filters",filters);
+    private String selectedHeaderToRemove;
+    private final List<String> tmpHeaders = new ArrayList<>();
+    private final Filters filters = new Filters();
+    private final Transformers transformers = new Transformers();
+    private final Counters counters = new Counters();
+    private final HashMap<String, AbstractProcess> processes = new HashMap<String, AbstractProcess>() {{
+        put("filters", filters);
         put("transformers", transformers);
         put("counters", counters);
     }};
-    private final List<String> filterTypeOptions = filters.getTypeOptions();
 
     public Part getFile() {
         return file;
@@ -48,20 +46,8 @@ public class MyDataset {
         this.file = file;
     }
 
-    public Filters getFilters() {
-        return filters;
-    }
-
-    public void setFilters(Filters filters) {
-        this.filters = filters;
-    }
-
     public Set<String> getHeaders() {
         return headers.keySet();
-    }
-
-    public Map<String, Integer> getHeadersMap() {
-        return headers;
     }
 
     @PostConstruct
@@ -73,18 +59,47 @@ public class MyDataset {
         response.sendRedirect("http://localhost:8080/filters.xhtml");
     }
 
-    public void addNewFilter(String processName) {
+    public void addNewProcessValue(String processName) {
+        System.out.println("Add new condition");
+        if (processName.equals("counters")){
+            selectedHeader = String.join(",", this.tmpHeaders);
+            this.tmpHeaders.clear();
+        }
         this.processes.get(processName).add(selectedHeader, selectedType, value);
+    }
+
+    public void removeProcessValue(String processName, TableRow row) {
+        System.out.println("Remove condition");
+        System.out.println("condition to remove: header=" + selectedHeader + ", type=" + selectedType + ", vale=" + value);
+        this.processes.get(processName).remove(row);
     }
 
     public void next(String processName) throws IOException {
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-        response.sendRedirect(this.processes.get(processName).nextPage());
+        if (processName.equals("filters") && !headers.containsKey("date"))
+            response.sendRedirect("http://localhost:8080/counters_without_date.xhtml");
+        else {
+            response.sendRedirect(this.processes.get(processName).nextPage());
+        }
     }
 
     public void previous(String processName) throws IOException {
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
         response.sendRedirect(this.processes.get(processName).previous());
+    }
+
+    public void addToCurrentCounter() {
+        if (!this.tmpHeaders.contains(this.selectedHeader)) {
+            tmpHeaders.add(this.selectedHeader);
+        }
+    }
+
+    public void removeFromCurrentCounter() {
+        tmpHeaders.remove(this.selectedHeaderToRemove);
+    }
+
+    public List<String> getTmpHeaders() {
+        return this.tmpHeaders;
     }
 
     public String getSelectedHeader() {
@@ -96,6 +111,15 @@ public class MyDataset {
         this.selectedHeader = selectedHeader;
     }
 
+    public String getSelectedHeaderToRemove() {
+        return selectedHeaderToRemove;
+    }
+
+
+    public void setSelectedHeaderToRemove(String selectedHeaderToRemove) {
+        this.selectedHeaderToRemove = selectedHeaderToRemove;
+    }
+
     public String getSelectedType() {
         return selectedType;
     }
@@ -104,7 +128,6 @@ public class MyDataset {
     public void setSelectedType(String selectedType) {
         this.selectedType = selectedType;
     }
-
 
 
     public String getValue() {

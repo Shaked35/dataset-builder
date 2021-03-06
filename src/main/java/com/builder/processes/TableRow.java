@@ -13,12 +13,17 @@ public class TableRow {
         return this.header;
     }
 
-    public void setHeader(String header){ }
     public String getProcessType(){
         return this.processType;
     }
     public String getValue() {
         return this.value;
+    }
+
+    public boolean equals(TableRow other){
+        return other.getHeader().equals(this.getHeader()) &&
+                other.getValue().equals(this.getValue()) &&
+                other.getProcessType().equals(this.getProcessType());
     }
 
 

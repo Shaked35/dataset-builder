@@ -10,33 +10,49 @@
     background-size: cover;color: whitesmoke;">
     <h:panelGrid style="transform: translate(-50%, -50%);
     position: absolute;
-    top: 30%;
+    top: 40%;
     left: 18%;">
         <h:panelGrid style="display:block; font-size:35px; font-weight: bold;
         font-family: 'Lucida Console', 'Courier New', monospace">
-            <h3>Add Filters</h3>
+            <h3>Add Counters</h3>
         </h:panelGrid>
 
         <h:form styleClass="tablePosition">
-            <h:outputText value="Header Name: "/>
+            <h:outputText value="Add Header: "/>
             <h:selectOneMenu value="#{myDataset.selectedHeader}">
                 <f:selectItems value="#{myDataset.headers}"/>
             </h:selectOneMenu>
             <br/><br/>
-            <h:outputText value="Filter Condition: "/>
+            <h:commandButton action="#{myDataset.addToCurrentCounter}" value="Add Header To Current Counter"
+                             style="font-size:15px; font-weight: bold;"/>
+            <br/><br/>
+            <h:outputText value="Peek Counter Type: "/>
             <h:selectOneMenu value="#{myDataset.selectedType}">
-                <f:selectItems value="#{myDataset.getTypeOptions('filters')}"/>
+                <f:selectItems value="#{myDataset.getTypeOptions('counters')}"/>
             </h:selectOneMenu>
             <br/><br/>
-            <h:outputText value="Filter Value: "/>
-            <h:inputText id="filterValue" value="#{myDataset.value}"/>
+
+            <h3>Current Counter Details</h3>
+            <h:outputText value="Headers: "/>
+            <h:selectOneMenu value="#{myDataset.selectedHeaderToRemove}">
+                <f:selectItems value="#{myDataset.tmpHeaders}"/>
+            </h:selectOneMenu>
+            <br/><br/>
+            <h:commandButton action="#{myDataset.removeFromCurrentCounter}" value="Remove Header From Current Counter"
+                             style="font-size:15px; font-weight: bold;"/>
+            <br/><br/>
+            <h:outputText value="Current Counter Type: "/>
+            <h:outputText value="#{myDataset.selectedType}"   style="font-weight: bold;"/>
+            <br/><br/>
             <br/><br/>
 
-            <h:commandButton action="#{myDataset.previous('filters')}" value="Preview"
+            <h:outputText value="______________________________________"/>
+            <br/><br/>
+            <h:commandButton action="#{myDataset.previous('counters')}" value="Preview"
                              style="font-size:15px; font-weight: bold;"/>
-            <h:commandButton action="#{myDataset.addNewProcessValue('filters')}" value="Add Filter"
+            <h:commandButton action="#{myDataset.addNewProcessValue('counters')}" value="Add Current Counter"
                              style="font-size:15px; font-weight: bold;"/>
-            <h:commandButton action="#{myDataset.next('filters')}" value="Next"
+            <h:commandButton action="#{myDataset.next('counters')}" value="Next"
                              style="font-size:15px; font-weight: bold;"/>
 
         </h:form>
@@ -53,7 +69,7 @@
     font-weight: bold;
     -webkit-text-stroke:black">
         <h:form>
-            <h:dataTable value="#{myDataset.getAddedList('filters')}" var="row" border="1">
+            <h:dataTable value="#{myDataset.getAddedList('counters')}" var="row" border="1">
 
                 <h:column>
                     <f:facet name="header">
@@ -77,22 +93,12 @@
 
                 <h:column>
                     <f:facet name="header">
-                        <h:commandButton value="Value" style="
-                        font-weight: bold;
-                        font-size: large;
-                        font-style: oblique;"/>
-                    </f:facet>
-                    ${row.value}
-                </h:column>
-
-                <h:column>
-                    <f:facet name="header">
                         <h:commandButton value="Action" style="
                         font-weight: bold;
                         font-size: large;
                         font-style: oblique;"/>
                     </f:facet>
-                    <h:commandButton action="#{myDataset.removeProcessValue('filters',row)}" value="remove" ajax="false"/>
+                    <h:commandButton action="#{myDataset.removeProcessValue('counters',row)}" value="remove" ajax="false"/>
                 </h:column>
             </h:dataTable>
         </h:form>
