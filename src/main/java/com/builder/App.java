@@ -3,6 +3,8 @@ package com.builder;
 import com.builder.processes.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.bson.Document;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
@@ -10,16 +12,21 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import static com.builder.utils.Constants.WEB_PREFIX_URL;
+import static com.builder.utils.Utils.*;
 
 
 @ManagedBean
 @SessionScoped
-public class MyDataset {
+public class App {
 
     private Part file;
     private Map<String, Integer> headers;
@@ -56,7 +63,7 @@ public class MyDataset {
         fileParser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader);
         headers = fileParser.getHeaderMap();
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-        response.sendRedirect("http://localhost:8080/filters.xhtml");
+        response.sendRedirect(WEB_PREFIX_URL+"filters.xhtml");
     }
 
     public void addNewProcessValue(String processName) {
@@ -75,9 +82,12 @@ public class MyDataset {
     }
 
     public void next(String processName) throws IOException {
+        value = "";
+        selectedHeader = "";
+        selectedType = "";
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
         if (processName.equals("filters") && !headers.containsKey("date"))
-            response.sendRedirect("http://localhost:8080/counters_without_date.xhtml");
+            response.sendRedirect(WEB_PREFIX_URL+"counters_without_date.xhtml");
         else {
             response.sendRedirect(this.processes.get(processName).nextPage());
         }
@@ -87,6 +97,44 @@ public class MyDataset {
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
         response.sendRedirect(this.processes.get(processName).previous());
     }
+
+    public void apply() throws IOException {
+        File tmpFile = File.createTempFile("tmp_file_" + UUID.randomUUID().toString(), ".csv");
+        File finalFile = File.createTempFile("final_file_" + UUID.randomUUID().toString(), ".csv");
+        Writer writer = new BufferedWriter(new FileWriter(tmpFile));
+        CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
+        AtomicInteger counter = new AtomicInteger(0);
+        List<String> headersToPrint = new ArrayList<>();
+        streamFile(fileParser)
+                .map(row-> this.processes.get("filters").apply(row))
+                .filter(Objects::nonNull)
+                .sorted(sortByDate())
+                .map(row-> this.processes.get("counters").apply(row))
+                .peek(row-> ((Transformers) this.processes.get("transformers")).learn(row))
+                .peek(firstRow ->{
+                    try {
+                        addNewHeaders(counter, firstRow, csvPrinter, headersToPrint, headers);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    counter.getAndAdd(1);
+                })
+                .forEach(row-> {
+                    try {
+                        writeToFile(csvPrinter, headersToPrint, row);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+        csvPrinter.flush();
+        writer.close();
+//        return
+//        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+//        response.sendRedirect(this.processes.get(processName).previous());
+    }
+
+
+
 
     public void addToCurrentCounter() {
         if (!this.tmpHeaders.contains(this.selectedHeader)) {

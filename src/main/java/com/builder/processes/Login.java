@@ -6,6 +6,8 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static com.builder.utils.Constants.WEB_PREFIX_URL;
+
 @ManagedBean
 @SessionScoped
 public class Login {
@@ -34,7 +36,7 @@ public class Login {
     public void login() throws IOException {
         System.out.println(this.password);
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-        response.sendRedirect("http://localhost:8080/newFile.xhtml");
+        response.sendRedirect(WEB_PREFIX_URL+"newFile.xhtml");
     }
 }
 

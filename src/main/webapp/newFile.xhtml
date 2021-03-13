@@ -22,12 +22,12 @@
             <h:outputText value="Please upload your csv"/>
         </h:panelGrid>
         <h:panelGrid style="font-size:20px; margin-left:10%;margin-top:10px;">
-        <h:inputFile id="file" value="#{myDataset.file}"/>
+        <h:inputFile id="file" value="#{app.file}"/>
             <h:message for="file"/>
         </h:panelGrid>
 
         <h:panelGrid style="margin-left:30%; margin-top:10px;">
-        <h:commandButton action="#{myDataset.initializeFile}" value="Upload" style="font-size:15px; font-weight: bold;"/>
+        <h:commandButton action="#{app.initializeFile}" value="Upload" style="font-size:15px; font-weight: bold;"/>
         </h:panelGrid>
 
     </h:form>
