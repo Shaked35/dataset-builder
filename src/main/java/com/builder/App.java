@@ -9,6 +9,8 @@ import org.bson.Document;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -40,6 +42,8 @@ public class App {
         put(TRANSFORMERS, transformers);
         put(COUNTERS, counters);
     }};
+    private File finalFile;
+
 
     public Part getFile() {
         return file;
@@ -58,6 +62,8 @@ public class App {
         Reader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
         fileParser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader);
         headers = fileParser.getHeaderMap();
+        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                .getExternalContext().getResponse();
         response.sendRedirect(WEB_PREFIX_URL+FILTERS+XHTML_SUFFIX);
     }
 
@@ -80,7 +86,10 @@ public class App {
         value = "";
         selectedHeader = "";
         selectedType = "";
+        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                .getExternalContext().getResponse();
         if (processName.equals(FILTERS) && !headers.containsKey("date"))
+
             response.sendRedirect(WEB_PREFIX_URL+"counters_without_date"+XHTML_SUFFIX);
         else {
             response.sendRedirect(this.processes.get(processName).nextPage());
@@ -88,6 +97,8 @@ public class App {
     }
 
     public void previous(String processName) throws IOException {
+        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                .getExternalContext().getResponse();
         response.sendRedirect(this.processes.get(processName).previous());
     }
 
@@ -95,7 +106,7 @@ public class App {
         System.out.println("start file process");
         File tmpFile = File.createTempFile("tmp_file_" + UUID.randomUUID().toString(), ".csv");
         String finalFileName = "final_file_" + UUID.randomUUID().toString();
-        File finalFile = File.createTempFile(finalFileName, ".csv");
+        finalFile = File.createTempFile(finalFileName, ".csv");
         try {
             Writer writer = new BufferedWriter(new FileWriter(tmpFile));
             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
@@ -112,10 +123,11 @@ public class App {
             second_iteration_process(counter, headersToPrint, finalCsvPrinter);
             System.out.println("finished second iteration");
             close(writer, finalCsvPrinter, counter);
-            downloadFile(finalFile);
+            HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                    .getExternalContext().getResponse();
             response.sendRedirect(WEB_PREFIX_URL+"finished"+XHTML_SUFFIX);
         }finally{
-            if (finalFile.delete() && tmpFile.delete()){
+            if (tmpFile.delete()){
                 System.out.println("All files deleted");
             }
         }
@@ -123,6 +135,8 @@ public class App {
 
     public void exit() throws IOException {
         totalClean();
+        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                .getExternalContext().getResponse();
         response.sendRedirect(WEB_PREFIX_URL+"newFile"+XHTML_SUFFIX);
     }
 
@@ -147,7 +161,9 @@ public class App {
 
     public void anotherOne() throws IOException {
         totalClean();
-        response.sendRedirect(WEB_PREFIX_URL+FILTERS+XHTML_SUFFIX);
+        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                .getExternalContext().getResponse();
+        response.sendRedirect(WEB_PREFIX_URL+"newFile"+XHTML_SUFFIX);
     }
 
     private void second_iteration_process(AtomicInteger counter, List<String> headersToPrint, CSVPrinter finalCsvPrinter) {
@@ -255,16 +271,18 @@ public class App {
         return this.processes.get(processName).getTablesRows();
     }
 
-    public void downloadFile(File file) throws IOException {
+    public void downloadFile() throws IOException {
+        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                .getExternalContext().getResponse();
         response.reset();
         response.setBufferSize(DEFAULT_BUFFER_SIZE);
         response.setContentType(CONTENT_TYPE);
-        response.setHeader("Content-Length", String.valueOf(file.length()));
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+        response.setHeader("Content-Length", String.valueOf(this.finalFile.length()));
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + this.finalFile.getName() + "\"");
         BufferedInputStream input;
         BufferedOutputStream output = null;
         try {
-            input = new BufferedInputStream(new FileInputStream(file), DEFAULT_BUFFER_SIZE);
+            input = new BufferedInputStream(new FileInputStream(this.finalFile), DEFAULT_BUFFER_SIZE);
             output = new BufferedOutputStream(response.getOutputStream(), DEFAULT_BUFFER_SIZE);
 
             byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];

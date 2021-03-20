@@ -6,6 +6,8 @@ import org.json.simple.parser.ParseException;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.*;
 
 import static com.builder.utils.Constants.*;
-import static com.builder.utils.Utils.response;
 
 @ManagedBean
 @SessionScoped
@@ -22,6 +23,7 @@ public class Login {
     private String username;
     private String password;
     private static String userMessage = "";
+
 
     public String getUsername() {
         return username;
@@ -42,6 +44,8 @@ public class Login {
     public void login() throws IOException, SQLException, ClassNotFoundException, ParseException {
         Connection connection = databaseConnection();
         if (isValidUser(connection)) {
+            HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                    .getExternalContext().getResponse();
             response.sendRedirect(WEB_PREFIX_URL + "newFile" + XHTML_SUFFIX);
         } else {
             userMessage = "The user name and password doesn't exist, please try again";
@@ -59,6 +63,8 @@ public class Login {
             Connection connection = databaseConnection();
             if (!isUserAlreadyExist(connection)) {
                 createNewUser(connection);
+                HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                        .getExternalContext().getResponse();
                 response.sendRedirect(WEB_PREFIX_URL + "newFile" + XHTML_SUFFIX);
             } else {
                 userMessage = "The user name is already exist, please peek another one";

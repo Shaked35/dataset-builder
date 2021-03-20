@@ -22,8 +22,6 @@ import static java.util.stream.Collectors.toList;
 public class Utils {
 
     public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    public static final HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
-            .getExternalContext().getResponse();
 
     public static String getEnumByValue(String value, List<Enum> names) {
         return names.stream()
