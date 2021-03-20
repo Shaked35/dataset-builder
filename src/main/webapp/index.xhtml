@@ -24,8 +24,15 @@
         </h:panelGrid>
         <h:panelGroup id="button" style="display:block;margin-left: 10%; margin-right:30%;margin-top:15px;">
             <h:commandButton action="#{login.login}" value="Login"/>
-            <h:commandButton action="filter.xhtml?faces-redirect=true" class="btn btn-info btn-block" value="Sign Up"/>
+            <h:commandButton action="#{login.createNewUser}" value="Create new user"/>
         </h:panelGroup>
+        <br/><br/>
+
+        <h:panelGroup style="background-color: black;
+        color: red; font-weight: bold; font-size:24px;margin-left: -20%;margin-top:15px;">
+            <h:outputText value="#{login.userMessage}"/>
+        </h:panelGroup>
+
     </h:form>
 </h:body>
 </html>

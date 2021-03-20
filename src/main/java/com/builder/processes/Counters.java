@@ -10,7 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.builder.utils.Constants.WEB_PREFIX_URL;
+import static com.builder.utils.Constants.*;
+import static com.builder.utils.Constants.XHTML_SUFFIX;
 import static com.builder.utils.Utils.dateTimeFormatter;
 import static com.builder.utils.Utils.filterAndCollectTableRows;
 
@@ -101,14 +102,14 @@ public class Counters implements AbstractProcess {
             Counters.CounterFunction function = partition.values().iterator().next().keySet().iterator().next();
             if (!tmpPartitionValues.containsKey(partitionBuilder.newPartition) ||
                     !tmpPartitionValues.get(partitionBuilder.newPartition).containsKey(
-                            partitionBuilder.currentPartitionValues + "-" + function+"-last7Days")) {
+                            partitionBuilder.currentPartitionValues + "-" + function + LAST_7)) {
                 calculateCurrentPartition(partitionBuilder, function);
             }
             HashMap<String, Double> optionalValues = tmpPartitionValues.get(partitionBuilder.newPartition);
-            newDocument.put(partitionBuilder.newPartition + "-" + function+"-last7Days",
-                    optionalValues.get(partitionBuilder.currentPartitionValues + "-" + function+"-last7Days"));
-            newDocument.put(partitionBuilder.newPartition + "-" + function+"-last14Days",
-                    optionalValues.get(partitionBuilder.currentPartitionValues + "-" + function+"-last14Days"));
+            newDocument.put(partitionBuilder.newPartition + "-" + function + LAST_7,
+                    optionalValues.get(partitionBuilder.currentPartitionValues + "-" + function + LAST_7));
+            newDocument.put(partitionBuilder.newPartition + "-" + function + LAST_14,
+                    optionalValues.get(partitionBuilder.currentPartitionValues + "-" + function + LAST_14));
 
         });
         return newDocument;
@@ -123,19 +124,19 @@ public class Counters implements AbstractProcess {
     private void initializedNewPartitionValue(PartitionBuilder partitionBuilder, CounterFunction function, List<Double> last7DaysValues, List<Double> last14DaysValues) {
         double days7;
         double days14;
-        if (function.equals(CounterFunction.SUM)){
+        if (function.equals(CounterFunction.SUM)) {
             days7 = last7DaysValues.stream().mapToDouble(Double::doubleValue).sum();
             days14 = last14DaysValues.stream().mapToDouble(Double::doubleValue).sum();
-        }else{
+        } else {
             days7 = last7DaysValues.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
             days14 = last14DaysValues.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
         }
         HashMap<String, Double> tmpDays = new HashMap<>();
-        if (tmpPartitionValues.containsKey(partitionBuilder.newPartition)){
+        if (tmpPartitionValues.containsKey(partitionBuilder.newPartition)) {
             tmpDays = tmpPartitionValues.get(partitionBuilder.newPartition);
         }
-        tmpDays.put(partitionBuilder.currentPartitionValues + "-" + function+"-last7Days", days7);
-        tmpDays.put(partitionBuilder.currentPartitionValues + "-" + function+"-last14Days", days14);
+        tmpDays.put(partitionBuilder.currentPartitionValues + "-" + function + LAST_7, days7);
+        tmpDays.put(partitionBuilder.currentPartitionValues + "-" + function + LAST_14, days14);
         tmpPartitionValues.put(partitionBuilder.newPartition, tmpDays);
     }
 
@@ -143,10 +144,10 @@ public class Counters implements AbstractProcess {
                                           HashMap<LocalDate, HashMap<String, HashMap<String, Double>>> countersValuesLastDays,
                                           Counters.CounterFunction function) {
         List<Double> lastDaysValues = new ArrayList<>();
-        countersValuesLastDays.forEach((date, partition)->{
-            HashMap<String,Double> datePartition =  partition.get(partitionBuilder.newPartition);
-            if (datePartition.containsKey(partitionBuilder.currentPartitionValues+"-"+function)){
-                lastDaysValues.add(datePartition.get(partitionBuilder.currentPartitionValues+"-"+function));
+        countersValuesLastDays.forEach((date, partition) -> {
+            HashMap<String, Double> datePartition = partition.get(partitionBuilder.newPartition);
+            if (datePartition.containsKey(partitionBuilder.currentPartitionValues + "-" + function)) {
+                lastDaysValues.add(datePartition.get(partitionBuilder.currentPartitionValues + "-" + function));
             }
         });
         return lastDaysValues;
@@ -155,7 +156,7 @@ public class Counters implements AbstractProcess {
     private void initializedNewDate(LocalDate rowDate) {
         countersValuesLast7Days = filterLastDays(rowDate.minusDays(7), new HashMap<>(countersValuesLast7Days));
         countersValuesLast14Days = filterLastDays(rowDate.minusDays(14), new HashMap<>(countersValuesLast14Days));
-        if (currentDate!= null) {
+        if (currentDate != null) {
             countersValuesLast7Days.put(currentDate, currentDateData);
             countersValuesLast14Days.put(currentDate, currentDateData);
         }
@@ -199,12 +200,12 @@ public class Counters implements AbstractProcess {
 
     @Override
     public String nextPage() {
-        return WEB_PREFIX_URL + "transformers.xhtml";
+        return WEB_PREFIX_URL + TRANSFORMERS + XHTML_SUFFIX;
     }
 
     @Override
     public String previous() {
-        return WEB_PREFIX_URL + "filters.xhtml";
+        return WEB_PREFIX_URL + FILTERS + XHTML_SUFFIX;
     }
 
     private static class PartitionBuilder {

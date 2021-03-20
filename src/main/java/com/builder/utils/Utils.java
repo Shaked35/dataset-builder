@@ -5,6 +5,8 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.bson.Document;
 
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -20,6 +22,8 @@ import static java.util.stream.Collectors.toList;
 public class Utils {
 
     public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static final HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+            .getExternalContext().getResponse();
 
     public static String getEnumByValue(String value, List<Enum> names) {
         return names.stream()
@@ -79,7 +83,9 @@ public class Utils {
                 }
             });
             headersToPrint.addAll(Arrays.stream(headers.keySet().toArray()).map(String::valueOf).collect(Collectors.toList()));
+            System.out.println("The new headers: "+headersToPrint);
             csvPrinter.printRecord(headersToPrint);
         }
     }
+
 }

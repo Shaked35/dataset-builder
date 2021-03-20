@@ -1,0 +1,10 @@
+.idea
+target
+.settings
+src/main/resources/config.json
+.DS_Store
+*.iml
+bin
+*.log
+*.zip
+

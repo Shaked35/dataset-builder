@@ -1,11 +1,31 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
-<f:view>
-    <h:outputLabel value="Hello, world"/>
-</f:view>
+        "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:h="http://xmlns.jcp.org/jsf/html"
+>
+
+<h:head>
+    <title>login</title>
+</h:head>
+<h:body style="background: black; background-size: cover;
+    margin-left: 40%; margin-right:20%;margin-top:50px;font-weight: bold;text-align:center; color: whitesmoke">
+    <h:form>
+        <h:panelGrid style="display:block; font-size:30px;
+        font-family: 'Lucida Console', 'Courier New', monospace">
+            <h3>Succeeded!</h3>
+        </h:panelGrid>
+
+        <h:panelGroup id="button" style="display:block; margin-right:64%;margin-top:15px;font-weight: bold;">
+            <h:commandButton action="#{app.anotherOne}" value="Build Another DataSet"/>
+            <h:commandButton action="#{app.exit}" value="Exit"/>
+        </h:panelGroup>
+    </h:form>
+    <div class="imageClass"></div>
+
+    <img  class="imageClass" alt="a" src="${pageContext.request.contextPath}/images/finish.gif"
+          style="margin-right:66%;margin-top:25px;font-weight: bold;"/>
+
+    <h:graphicImage styleClass="imageClass"/>
+
+</h:body>
 </html>

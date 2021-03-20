@@ -7,14 +7,19 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.bson.Document;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.junit.Test;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.builder.utils.Utils.*;
@@ -105,18 +110,55 @@ public class actionsTests {
                 .filter(Objects::nonNull)
                 .sorted(sortByDate())
                 .map(counters::apply)
-                .forEach(row -> {
-                    transformers.learn(row);
-                    try {
-                        addNewHeaders(counter, row, csvPrinter, headersToPrint, headers);
-                        writeToFile(csvPrinter, headersToPrint, row);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    counter.getAndAdd(1);
-                });
+                .forEach(addHeader(transformers, headers, csvPrinter, counter, headersToPrint));
         csvPrinter.flush();
         writer.close();
+        counter = new AtomicInteger(0);
+        headersToPrint = new ArrayList<>();
+        File finalFile = File.createTempFile("final_file_" + UUID.randomUUID().toString(), ".csv");
+        reader = new InputStreamReader(new FileInputStream(tmpFile), StandardCharsets.UTF_8);
+        fileParser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader);
+        headers = fileParser.getHeaderMap();
+        writer = new BufferedWriter(new FileWriter(finalFile));
+        CSVPrinter finalCsvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
+        streamFile(fileParser)
+                .map(transformers::apply)
+                .forEach(addHeader(transformers, headers, finalCsvPrinter, counter, headersToPrint));
+        finalCsvPrinter.flush();
+        writer.close();
+    }
+
+    private Consumer<Document> addHeader(Transformers transformers, Map<String, Integer> headers, CSVPrinter csvPrinter, AtomicInteger counter, List<String> headersToPrint) {
+        return row -> {
+            transformers.learn(row);
+            try {
+                addNewHeaders(counter, row, csvPrinter, headersToPrint, headers);
+                writeToFile(csvPrinter, headersToPrint, row);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            counter.getAndAdd(1);
+        };
+    }
+
+    @Test
+    @Ignore
+    public void databaseTest() throws SQLException, ClassNotFoundException, IOException, ParseException {
+        JSONParser parser = new JSONParser();
+        JSONObject json = (JSONObject) parser.parse(new FileReader("src/config.json"));
+        String user = (String) json.get("username");
+        String password = (String) json.get("password");
+
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        String jdbcUrl = "jdbc:mysql://localhost:3306/Users";
+        Connection connection = DriverManager.getConnection(jdbcUrl, user, password);
+        String sql = "SELECT * FROM users where userName = 'shaked'";
+        Statement myStmt = connection.createStatement();
+
+        ResultSet myRs = myStmt.executeQuery(sql);
+        while (myRs.next()) {
+            System.out.println("Cupcakes: " + myRs.getString("userName"));
+        }
     }
 
 

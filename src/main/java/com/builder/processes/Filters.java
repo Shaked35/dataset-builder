@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static com.builder.utils.Constants.WEB_PREFIX_URL;
+import static com.builder.utils.Constants.*;
 import static com.builder.utils.Utils.filterAndCollectTableRows;
 
 public class Filters implements AbstractProcess {
@@ -64,12 +64,12 @@ public class Filters implements AbstractProcess {
 
     @Override
     public String nextPage() {
-        return WEB_PREFIX_URL + "counters.xhtml";
+        return WEB_PREFIX_URL + COUNTERS + XHTML_SUFFIX;
     }
 
     @Override
     public String previous() {
-        return null;
+        return WEB_PREFIX_URL + "index" + XHTML_SUFFIX;
     }
 
     @Override
