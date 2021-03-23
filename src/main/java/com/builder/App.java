@@ -36,52 +36,96 @@ public class App {
     private List<String> tmpHeaders = new ArrayList<>();
     private Filters filters = new Filters();
     private Transformers transformers = new Transformers();
-    private Counters counters = new Counters();
+    private Statistics statistics = new Statistics();
     private HashMap<String, AbstractProcess> processes = new HashMap<String, AbstractProcess>() {{
         put(FILTERS, filters);
         put(TRANSFORMERS, transformers);
-        put(COUNTERS, counters);
+        put(Statistics, statistics);
     }};
     private File finalFile;
 
-
+    /**
+     * Get file from user
+     * @return file
+     */
     public Part getFile() {
         return file;
     }
 
+    /**
+     * Get file from user
+     * @param file: uploaded file
+     */
     public void setFile(Part file) {
         this.file = file;
     }
 
+    /**
+     * Get set list of headers
+     * @return headers: csv headers
+     */
     public Set<String> getHeaders() {
         return headers.keySet();
     }
 
+    /**
+     * This function save the csv from user and initialize the headers
+     */
     @PostConstruct
     public void initializeFile() throws IOException {
-        Reader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
-        fileParser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader);
-        headers = fileParser.getHeaderMap();
-        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
-                .getExternalContext().getResponse();
-        response.sendRedirect(WEB_PREFIX_URL+FILTERS+XHTML_SUFFIX);
+        if (file != null) {
+            try {
+                Reader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
+                fileParser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader);
+                headers = fileParser.getHeaderMap();
+                HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                        .getExternalContext().getResponse();
+                response.sendRedirect(WEB_PREFIX_URL + FILTERS + XHTML_SUFFIX);
+            }catch (Exception e) {
+                HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                        .getExternalContext().getResponse();
+                response.sendRedirect(WEB_PREFIX_URL + "error" + XHTML_SUFFIX);
+            }
+        }
     }
 
+    /**
+     * Return to upload file page when we have an error.
+     */
+    public void backHome() throws IOException {
+        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                .getExternalContext().getResponse();
+        response.sendRedirect(WEB_PREFIX_URL + "newFile" + XHTML_SUFFIX);
+    }
+
+    /**
+     * This function add the chosen value from user for the relevant process.
+     * @param processName: process type: filter or transformer or statistics
+     */
     public void addNewProcessValue(String processName) {
         System.out.println("Add new condition");
-        if (processName.equals(COUNTERS)){
+        if (processName.equals(Statistics)){
             selectedHeader = String.join(",", this.tmpHeaders);
             this.tmpHeaders.clear();
         }
         this.processes.get(processName).add(selectedHeader, selectedType, value);
     }
 
+    /**
+     * Remove a row from process
+     * @param processName: process type: filter or transformer or statistics
+     * @param row: row to remove from current table
+     */
     public void removeProcessValue(String processName, TableRow row) {
         System.out.println("Remove condition");
         System.out.println("condition to remove: header=" + selectedHeader + ", type=" + selectedType + ", vale=" + value);
         this.processes.get(processName).remove(row);
     }
 
+    /**
+     * Go to the next page
+     * @param processName: process type: filter or transformer or statistics
+     */
     public void next(String processName) throws IOException {
         value = "";
         selectedHeader = "";
@@ -90,18 +134,25 @@ public class App {
                 .getExternalContext().getResponse();
         if (processName.equals(FILTERS) && !headers.containsKey("date"))
 
-            response.sendRedirect(WEB_PREFIX_URL+"counters_without_date"+XHTML_SUFFIX);
+            response.sendRedirect(WEB_PREFIX_URL+"statistics_without_date"+XHTML_SUFFIX);
         else {
             response.sendRedirect(this.processes.get(processName).nextPage());
         }
     }
 
+    /**
+     * Go to the previous page
+     * @param processName: process type: filter or transformer or statistics
+     */
     public void previous(String processName) throws IOException {
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
                 .getExternalContext().getResponse();
         response.sendRedirect(this.processes.get(processName).previous());
     }
 
+    /**
+     * This function run the main process. After we got all of the values from the user we create the output file.
+     */
     public void apply() throws IOException {
         System.out.println("start file process");
         File tmpFile = File.createTempFile("tmp_file_" + UUID.randomUUID().toString(), ".csv");
@@ -133,6 +184,9 @@ public class App {
         }
     }
 
+    /**
+     * Exist from website
+     */
     public void exit() throws IOException {
         totalClean();
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
@@ -140,6 +194,9 @@ public class App {
         response.sendRedirect(WEB_PREFIX_URL+"newFile"+XHTML_SUFFIX);
     }
 
+    /**
+     * Clean the previews values.
+     */
     private void totalClean() {
         file = null;
         headers = new HashMap<>();
@@ -151,14 +208,17 @@ public class App {
         tmpHeaders = new ArrayList<>();
         filters = new Filters();
         transformers = new Transformers();
-        counters = new Counters();
+        statistics = new Statistics();
         processes = new HashMap<String, AbstractProcess>() {{
             put(FILTERS, filters);
             put(TRANSFORMERS, transformers);
-            put(COUNTERS, counters);
+            put(Statistics, statistics);
         }};
     }
 
+    /**
+     * Go and build new dataset.
+     */
     public void anotherOne() throws IOException {
         totalClean();
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
@@ -166,6 +226,12 @@ public class App {
         response.sendRedirect(WEB_PREFIX_URL+"newFile"+XHTML_SUFFIX);
     }
 
+    /**
+     * Write the final file with the transformers.
+     * @param counter: number of rows
+     * @param headersToPrint: the final headers
+     * @param finalCsvPrinter: final csv printer
+     */
     private void second_iteration_process(AtomicInteger counter, List<String> headersToPrint, CSVPrinter finalCsvPrinter) {
         streamFile(fileParser)
                 .map(row-> this.processes.get(TRANSFORMERS).apply(row))
@@ -173,23 +239,40 @@ public class App {
                 .forEach(write(finalCsvPrinter, headersToPrint));
     }
 
+    /**
+     * Write the tmp file before calculate transformers.
+     * @param counter: number of rows
+     * @param headersToPrint: the final headers
+     */
     private void first_iteration_process(CSVPrinter csvPrinter, AtomicInteger counter, List<String> headersToPrint) {
         streamFile(fileParser)
                 .map(row-> this.processes.get(FILTERS).apply(row))
                 .filter(Objects::nonNull)
                 .sorted(sortByDate())
-                .map(row-> this.processes.get(COUNTERS).apply(row))
+                .map(row-> this.processes.get(Statistics).apply(row))
                 .peek(row-> ((Transformers) this.processes.get(TRANSFORMERS)).learn(row))
                 .peek(initialized_headers(csvPrinter, counter, headersToPrint))
                 .forEach(write(csvPrinter, headersToPrint));
     }
 
+
+    /**
+     * Close resources.
+     * @param counter: number of rows
+     * @param csvPrinter: csv printer
+     * @param writer: csv writer
+     */
     private void close(Writer writer, CSVPrinter csvPrinter, AtomicInteger counter) throws IOException {
         csvPrinter.flush();
         writer.close();
         counter.set(0);
     }
 
+    /**
+     * Write row of output file
+     * @param headersToPrint: output headers
+     * @param csvPrinter: csv printer
+     */
     private Consumer<Document> write(CSVPrinter csvPrinter, List<String> headersToPrint) {
         return row-> {
             try {
@@ -200,6 +283,12 @@ public class App {
         };
     }
 
+    /**
+     * Write the headers of the output file
+     * @param headersToPrint: output headers
+     * @param csvPrinter: csv printer
+     * @param counter: number of rows
+     */
     private Consumer<Document> initialized_headers(CSVPrinter csvPrinter, AtomicInteger counter, List<String> headersToPrint) {
         return firstRow ->{
             try {
@@ -212,13 +301,19 @@ public class App {
     }
 
 
-    public void addToCurrentCounter() {
+    /**
+     * Add statics values to the current statistic
+     */
+    public void addToCurrentStatistic() {
         if (!this.tmpHeaders.contains(this.selectedHeader)) {
             tmpHeaders.add(this.selectedHeader);
         }
     }
 
-    public void removeFromCurrentCounter() {
+    /**
+     * Remove statics values to the current statistic
+     */
+    public void removeFromCurrentStatistic() {
         tmpHeaders.remove(this.selectedHeaderToRemove);
     }
 
@@ -271,6 +366,9 @@ public class App {
         return this.processes.get(processName).getTablesRows();
     }
 
+    /**
+     * Send the output file to the user.
+     */
     public void downloadFile() throws IOException {
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
                 .getExternalContext().getResponse();

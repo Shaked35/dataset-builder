@@ -5,8 +5,6 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.bson.Document;
 
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -23,6 +21,12 @@ public class Utils {
 
     public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+    /**
+     * Get enum name by value
+     * @param value: target value
+     * @param names: enum options
+     * @return name: enum name
+     */
     public static String getEnumByValue(String value, List<Enum> names) {
         return names.stream()
                 .filter(d-> d.toString().equals(value))
@@ -30,6 +34,11 @@ public class Utils {
                 .collect(Collectors.toList()).get(0);
     }
 
+    /**
+     * Find if the current row have the same values as the target row
+     * @param row: target row
+     * @return true if the target row not equals to the current row
+     */
     public static <T> Predicate<HashMap<String, T>> filterCondition(TableRow row) {
         return condition -> {
             String conditionHeader = condition.keySet().toArray()[0].toString();

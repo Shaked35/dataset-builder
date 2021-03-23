@@ -139,7 +139,7 @@ public class Transformers implements AbstractProcess {
 
     @Override
     public String previous() {
-        return WEB_PREFIX_URL + COUNTERS + XHTML_SUFFIX;
+        return WEB_PREFIX_URL + Statistics + XHTML_SUFFIX;
     }
 
 }

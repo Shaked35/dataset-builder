@@ -15,21 +15,21 @@ import static com.builder.utils.Constants.XHTML_SUFFIX;
 import static com.builder.utils.Utils.dateTimeFormatter;
 import static com.builder.utils.Utils.filterAndCollectTableRows;
 
-public class Counters implements AbstractProcess {
-    private List<HashMap<String, HashMap<Counters.CounterFunction, String>>> counters;
-    private HashMap<LocalDate, HashMap<String, HashMap<String, Double>>> countersValuesLast7Days = new HashMap<>();
-    private HashMap<LocalDate, HashMap<String, HashMap<String, Double>>> countersValuesLast14Days = new HashMap<>();
+public class Statistics implements AbstractProcess {
+    private List<HashMap<String, HashMap<Function, String>>> statistics;
+    private HashMap<LocalDate, HashMap<String, HashMap<String, Double>>> valuesLast7Days = new HashMap<>();
+    private HashMap<LocalDate, HashMap<String, HashMap<String, Double>>> valuesLast14Days = new HashMap<>();
     private final HashMap<String, HashMap<String, Double>> currentDateData = new HashMap<>();
     private final HashMap<String, HashMap<String, Double>> tmpPartitionValues = new HashMap<>();
     private LocalDate currentDate;
     private List<TableRow> rows = new ArrayList<>();
 
-    private enum CounterFunction {
+    private enum Function {
         AVG("Average"), SUM("Sum");
 
         private final String function;
 
-        CounterFunction(String condition) {
+        Function(String condition) {
             this.function = condition;
         }
 
@@ -39,19 +39,19 @@ public class Counters implements AbstractProcess {
         }
     }
 
-    public Counters() {
-        counters = new ArrayList<>();
+    public Statistics() {
+        statistics = new ArrayList<>();
     }
 
     @Override
     public void add(String header, String conditionType, String conditionValue) {
-        HashMap<Counters.CounterFunction, String> newCondition = new HashMap<>();
-        newCondition.put(Counters.CounterFunction.valueOf(Utils.getEnumByValue(conditionType,
-                Arrays.asList(Counters.CounterFunction.values()))),
+        HashMap<Function, String> newCondition = new HashMap<>();
+        newCondition.put(Function.valueOf(Utils.getEnumByValue(conditionType,
+                Arrays.asList(Function.values()))),
                 conditionValue);
-        HashMap<String, HashMap<Counters.CounterFunction, String>> newCounter = new HashMap<>();
-        newCounter.put(header, newCondition);
-        counters.add(newCounter);
+        HashMap<String, HashMap<Function, String>> newStatistic = new HashMap<>();
+        newStatistic.put(header, newCondition);
+        statistics.add(newStatistic);
         rows.add(new TableRow(header, conditionType, conditionValue));
     }
 
@@ -62,14 +62,14 @@ public class Counters implements AbstractProcess {
 
     @Override
     public void remove(TableRow row) {
-        counters = counters.stream().filter(
+        statistics = statistics.stream().filter(
                 condition -> {
                     String conditionHeader = condition.keySet().iterator().next();
-                    HashMap<Counters.CounterFunction, String> values = condition.values().iterator().next();
-                    String conditionCounterType = values.keySet().iterator().next().function;
+                    HashMap<Function, String> values = condition.values().iterator().next();
+                    String conditionStatisticType = values.keySet().iterator().next().function;
                     String conditionValue = values.values().iterator().next();
                     return !(conditionHeader.equals(row.getHeader()) && conditionValue.equals(row.getValue()) &&
-                            conditionCounterType.equals(row.getProcessType()));
+                            conditionStatisticType.equals(row.getProcessType()));
                 }
         ).collect(Collectors.toList());
         rows = filterAndCollectTableRows(row, this.rows);
@@ -77,12 +77,12 @@ public class Counters implements AbstractProcess {
 
     @Override
     public List<String> getTypeOptions() {
-        return Arrays.stream(Counters.CounterFunction.values()).map(Counters.CounterFunction::toString).collect(Collectors.toList());
+        return Arrays.stream(Function.values()).map(Function::toString).collect(Collectors.toList());
     }
 
     @Override
     public Document apply(Document row) {
-        if (!counters.isEmpty()) {
+        if (!statistics.isEmpty()) {
             LocalDate rowDate = LocalDate.parse(row.getString("date"), dateTimeFormatter);
             if (!rowDate.equals(currentDate)) {
                 initializedNewDate(rowDate);
@@ -97,9 +97,9 @@ public class Counters implements AbstractProcess {
 
     private Document addPartitionsValues(Document row) {
         Document newDocument = new Document(row);
-        counters.forEach(partition -> {
+        statistics.forEach(partition -> {
             PartitionBuilder partitionBuilder = new PartitionBuilder(row, partition).invoke();
-            Counters.CounterFunction function = partition.values().iterator().next().keySet().iterator().next();
+            Function function = partition.values().iterator().next().keySet().iterator().next();
             if (!tmpPartitionValues.containsKey(partitionBuilder.newPartition) ||
                     !tmpPartitionValues.get(partitionBuilder.newPartition).containsKey(
                             partitionBuilder.currentPartitionValues + "-" + function + LAST_7)) {
@@ -115,16 +115,16 @@ public class Counters implements AbstractProcess {
         return newDocument;
     }
 
-    private void calculateCurrentPartition(PartitionBuilder partitionBuilder, Counters.CounterFunction function) {
-        List<Double> last7DaysValues = getLstDaysValues(partitionBuilder, countersValuesLast7Days, function);
-        List<Double> last14DaysValues = getLstDaysValues(partitionBuilder, countersValuesLast14Days, function);
+    private void calculateCurrentPartition(PartitionBuilder partitionBuilder, Function function) {
+        List<Double> last7DaysValues = getLstDaysValues(partitionBuilder, valuesLast7Days, function);
+        List<Double> last14DaysValues = getLstDaysValues(partitionBuilder, valuesLast14Days, function);
         initializedNewPartitionValue(partitionBuilder, function, last7DaysValues, last14DaysValues);
     }
 
-    private void initializedNewPartitionValue(PartitionBuilder partitionBuilder, CounterFunction function, List<Double> last7DaysValues, List<Double> last14DaysValues) {
+    private void initializedNewPartitionValue(PartitionBuilder partitionBuilder, Function function, List<Double> last7DaysValues, List<Double> last14DaysValues) {
         double days7;
         double days14;
-        if (function.equals(CounterFunction.SUM)) {
+        if (function.equals(Function.SUM)) {
             days7 = last7DaysValues.stream().mapToDouble(Double::doubleValue).sum();
             days14 = last14DaysValues.stream().mapToDouble(Double::doubleValue).sum();
         } else {
@@ -141,10 +141,10 @@ public class Counters implements AbstractProcess {
     }
 
     private List<Double> getLstDaysValues(PartitionBuilder partitionBuilder,
-                                          HashMap<LocalDate, HashMap<String, HashMap<String, Double>>> countersValuesLastDays,
-                                          Counters.CounterFunction function) {
+                                          HashMap<LocalDate, HashMap<String, HashMap<String, Double>>> statisticValuesLastDays,
+                                          Function function) {
         List<Double> lastDaysValues = new ArrayList<>();
-        countersValuesLastDays.forEach((date, partition) -> {
+        statisticValuesLastDays.forEach((date, partition) -> {
             HashMap<String, Double> datePartition = partition.get(partitionBuilder.newPartition);
             if (datePartition.containsKey(partitionBuilder.currentPartitionValues + "-" + function)) {
                 lastDaysValues.add(datePartition.get(partitionBuilder.currentPartitionValues + "-" + function));
@@ -154,23 +154,23 @@ public class Counters implements AbstractProcess {
     }
 
     private void initializedNewDate(LocalDate rowDate) {
-        countersValuesLast7Days = filterLastDays(rowDate.minusDays(7), new HashMap<>(countersValuesLast7Days));
-        countersValuesLast14Days = filterLastDays(rowDate.minusDays(14), new HashMap<>(countersValuesLast14Days));
+        valuesLast7Days = filterLastDays(rowDate.minusDays(7), new HashMap<>(valuesLast7Days));
+        valuesLast14Days = filterLastDays(rowDate.minusDays(14), new HashMap<>(valuesLast14Days));
         if (currentDate != null) {
-            countersValuesLast7Days.put(currentDate, currentDateData);
-            countersValuesLast14Days.put(currentDate, currentDateData);
+            valuesLast7Days.put(currentDate, currentDateData);
+            valuesLast14Days.put(currentDate, currentDateData);
         }
         currentDateData.clear();
 
     }
 
     private void updatePartition(Document row) {
-        counters.forEach(partition -> {
+        statistics.forEach(partition -> {
             PartitionBuilder partitionBuilder = new PartitionBuilder(row, partition).invoke();
             String currentPartitionValues = partitionBuilder.getCurrentPartitionValues();
             Double currentValue = partitionBuilder.getCurrentValue();
             String newPartition = partitionBuilder.getNewPartition();
-            Counters.CounterFunction function = partition.values().iterator().next().keySet().iterator().next();
+            Function function = partition.values().iterator().next().keySet().iterator().next();
             Double lastValue = 0.0;
             if (currentDateData.containsKey(newPartition)) {
                 HashMap<String, Double> optionalValues = currentDateData.get(newPartition);
@@ -210,12 +210,12 @@ public class Counters implements AbstractProcess {
 
     private static class PartitionBuilder {
         private final Document row;
-        private final HashMap<String, HashMap<CounterFunction, String>> partition;
+        private final HashMap<String, HashMap<Function, String>> partition;
         private String currentPartitionValues;
         private Double currentValue;
         private String newPartition;
 
-        public PartitionBuilder(Document row, HashMap<String, HashMap<CounterFunction, String>> partition) {
+        public PartitionBuilder(Document row, HashMap<String, HashMap<Function, String>> partition) {
             this.row = row;
             this.partition = partition;
         }

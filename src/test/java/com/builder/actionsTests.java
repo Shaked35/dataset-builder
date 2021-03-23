@@ -1,6 +1,6 @@
 package com.builder;
 
-import com.builder.processes.Counters;
+import com.builder.processes.Statistics;
 import com.builder.processes.Transformers;
 import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.apache.commons.csv.CSVFormat;
@@ -15,8 +15,6 @@ import org.junit.Test;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -59,17 +57,17 @@ public class actionsTests {
     @Test
     @Ignore
     public void counterIntegrativeTest() throws IOException {
-        Counters counters = new Counters();
+        Statistics statistics = new Statistics();
 //        counters.add("provider,position", "Sum", "sales");
-        counters.add("provider,position", "Sum", "outbounds");
-        counters.add("provider,position", "Average", "outbounds");
+        statistics.add("provider,position", "Sum", "outbounds");
+        statistics.add("provider,position", "Average", "outbounds");
         File file = new File("outbound_test.csv");
         InputStream inputFile = new FileInputStream(file);
         Reader reader = new InputStreamReader(inputFile, StandardCharsets.UTF_8);
         CSVParser fileParser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader);
         streamFile(fileParser)
                 .sorted(sortByDate())
-                .map(counters::apply)
+                .map(statistics::apply)
                 .forEach(d -> {
                     System.out.println(d);
                 });
@@ -91,9 +89,9 @@ public class actionsTests {
     @Test
     @Ignore
     public void integrativeTest() throws IOException {
-        Counters counters = new Counters();
-        counters.add("provider,position", "Sum", "outbounds");
-        counters.add("provider,position", "Average", "outbounds");
+        Statistics statistics = new Statistics();
+        statistics.add("provider,position", "Sum", "outbounds");
+        statistics.add("provider,position", "Average", "outbounds");
         Transformers transformers = new Transformers();
         transformers.add("provider", "OrdinalEncoder", "");
         File file = new File("outbound_test.csv");
@@ -109,7 +107,7 @@ public class actionsTests {
         streamFile(fileParser)
                 .filter(Objects::nonNull)
                 .sorted(sortByDate())
-                .map(counters::apply)
+                .map(statistics::apply)
                 .forEach(addHeader(transformers, headers, csvPrinter, counter, headersToPrint));
         csvPrinter.flush();
         writer.close();

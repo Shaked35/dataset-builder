@@ -64,7 +64,7 @@ public class Filters implements AbstractProcess {
 
     @Override
     public String nextPage() {
-        return WEB_PREFIX_URL + COUNTERS + XHTML_SUFFIX;
+        return WEB_PREFIX_URL + Statistics + XHTML_SUFFIX;
     }
 
     @Override

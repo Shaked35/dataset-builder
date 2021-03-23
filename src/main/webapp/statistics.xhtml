@@ -14,7 +14,7 @@
     left: 18%;">
         <h:panelGrid style="display:block; font-size:35px; font-weight: bold;
         font-family: 'Lucida Console', 'Courier New', monospace">
-            <h3>Add Counters</h3>
+            <h3>Add Statistics</h3>
         </h:panelGrid>
 
         <h:form styleClass="tablePosition">
@@ -28,25 +28,25 @@
                 <f:selectItems value="#{app.headers}"/>
             </h:selectOneMenu>
             <br/><br/>
-            <h:outputText value="Peek Counter Type: "/>
+            <h:outputText value="Peek Statistic Type: "/>
             <h:selectOneMenu value="#{app.selectedType}">
-                <f:selectItems value="#{app.getTypeOptions('counters')}"/>
+                <f:selectItems value="#{app.getTypeOptions('statistics')}"/>
             </h:selectOneMenu>
             <br/><br/>
-            <h:commandButton action="#{app.addToCurrentCounter}" value="Add Header To Current Counter"
+            <h:commandButton action="#{app.addToCurrentStatistic}" value="Add Header To Current Statistic"
                              style="font-size:15px; font-weight: bold;"/>
             <br/><br/>
 
-            <h3>Current Counter Details</h3>
+            <h3>Current Statistic Details</h3>
             <h:outputText value="Headers: "/>
             <h:selectOneMenu value="#{app.selectedHeaderToRemove}">
                 <f:selectItems value="#{app.tmpHeaders}"/>
             </h:selectOneMenu>
             <br/><br/>
-            <h:commandButton action="#{app.removeFromCurrentCounter}" value="Remove Header From Current Counter"
+            <h:commandButton action="#{app.removeFromCurrentStatistic}" value="Remove Header From Current Statistic"
                              style="font-size:15px; font-weight: bold;"/>
             <br/><br/>
-            <h:outputText value="Current Counter Type: "/>
+            <h:outputText value="Current Statistic Type: "/>
             <h:outputText value="#{app.selectedType}" style="font-weight: bold;"/>
             <br/><br/>
             <h:outputText value="Target Column: "/>
@@ -55,11 +55,11 @@
 
             <h:outputText value="______________________________________"/>
             <br/><br/>
-            <h:commandButton action="#{app.previous('counters')}" value="Preview"
+            <h:commandButton action="#{app.previous('statistics')}" value="Preview"
                              style="font-size:15px; font-weight: bold;"/>
-            <h:commandButton action="#{app.addNewProcessValue('counters')}" value="Add Current Counter"
+            <h:commandButton action="#{app.addNewProcessValue('statistics')}" value="Add Current Statistic"
                              style="font-size:15px; font-weight: bold;"/>
-            <h:commandButton action="#{app.next('counters')}" value="Next"
+            <h:commandButton action="#{app.next('statistics')}" value="Next"
                              style="font-size:15px; font-weight: bold;"/>
 
         </h:form>
@@ -76,7 +76,7 @@
     font-weight: bold;
     -webkit-text-stroke:black">
         <h:form>
-            <h:dataTable value="#{app.getAddedList('counters')}" var="row" border="1">
+            <h:dataTable value="#{app.getAddedList('statistics')}" var="row" border="1">
 
                 <h:column>
                     <f:facet name="header">
@@ -115,11 +115,19 @@
                         font-size: large;
                         font-style: oblique;"/>
                     </f:facet>
-                    <h:commandButton action="#{app.removeProcessValue('counters',row)}" value="remove" ajax="false"/>
+                    <h:commandButton action="#{app.removeProcessValue('statistics',row)}" value="remove" ajax="false"/>
                 </h:column>
             </h:dataTable>
         </h:form>
 
+    </h:panelGrid>
+
+    <h:panelGrid style="display:block; font-size:10px; font-weight: bold; margin-top: 5%;background: black;
+    margin-left: 70%; font-family: 'Lucida Console', 'Courier New', monospace">
+        <h3>Statistics Rules</h3>
+        <h:outputText value="1)For statics function you must have date column"/>
+        <h:outputText value="2)Date column must be in the folowing format: '2020-01-01'"/>
+        <h:outputText value="3)For each statics you will get values of last 7 days and last 14 days"/>
     </h:panelGrid>
 </h:body>
 </html>
