@@ -8,6 +8,7 @@ import org.bson.Document;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -64,9 +65,13 @@ public class Utils {
 
     public static Comparator<? super Document> sortByDate() {
         return (d1, d2)->{
-            LocalDate date1 = LocalDate.parse(d1.getString("date"), dateTimeFormatter);
-            LocalDate date2 = LocalDate.parse(d2.getString("date"), dateTimeFormatter);
-            return date1.compareTo(date2);
+            try {
+                LocalDate date1 = LocalDate.parse(d1.getString("date"), dateTimeFormatter);
+                LocalDate date2 = LocalDate.parse(d2.getString("date"), dateTimeFormatter);
+                return date1.compareTo(date2);
+            } catch (DateTimeParseException e){
+                return 1;
+            }
         };
     }
 

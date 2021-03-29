@@ -94,7 +94,7 @@ public class actionsTests {
         statistics.add("provider,position", "Average", "outbounds");
         Transformers transformers = new Transformers();
         transformers.add("provider", "OrdinalEncoder", "");
-        File file = new File("outbound_test.csv");
+        File file = new File("bad_day_request.csv");
         InputStream inputFile = new FileInputStream(file);
         Reader reader = new InputStreamReader(inputFile, StandardCharsets.UTF_8);
         CSVParser fileParser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader);

@@ -56,13 +56,16 @@ public class Login {
         return userMessage;
     }
 
-    public void createNewUser() throws IOException, SQLException, ClassNotFoundException, ParseException {
+    /**
+     * Add new user in DB.
+     */
+    public void insertUser() throws IOException, SQLException, ClassNotFoundException, ParseException {
         if (username == null || username.length() == 0 || password == null || password.length() == 0) {
             userMessage = "Please fill your user name and your password";
         } else {
             Connection connection = databaseConnection();
             if (!isUserAlreadyExist(connection)) {
-                createNewUser(connection);
+                insertUser(connection);
                 HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
                         .getExternalContext().getResponse();
                 response.sendRedirect(WEB_PREFIX_URL + "newFile" + XHTML_SUFFIX);
@@ -73,12 +76,18 @@ public class Login {
 
     }
 
-    private void createNewUser(Connection connection) throws SQLException {
+    private void insertUser(Connection connection) throws SQLException {
         String sql = "INSERT INTO users(userName,password) VALUES('" + username + "','" + password + "');";
         Statement myStmt = connection.createStatement();
         myStmt.executeUpdate(sql);
     }
 
+
+    /**
+     * Check if this user exist in the DB.
+     * @param connection: DB connection
+     * @return bool: true is the user is already exist
+     */
     private boolean isUserAlreadyExist(Connection connection) throws SQLException {
         String sql = BASIC_SELECT + username + "';";
         Statement myStmt = connection.createStatement();
@@ -90,6 +99,11 @@ public class Login {
         return exist;
     }
 
+    /**
+     * Check if this user and password is ok.
+     * @param connection: DB connection
+     * @return bool: true if the user is valid.
+     */
     private boolean isValidUser(Connection connection) throws SQLException {
         String sql = BASIC_SELECT + username + "';";
         Statement myStmt = connection.createStatement();

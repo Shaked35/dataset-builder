@@ -20,7 +20,7 @@ public class Filters implements AbstractProcess {
 
     private enum FilterType {
         EQUAL_TO("equal to"), GREATER_THAN("grater than"), LESS_THAN("less than"),
-        CONTAINS("contains"), DOESNT_CONTAINS("doesn't contains");
+        CONTAINS("contains"), DOESNT_CONTAINS("doesn't contain");
 
         private final String condition;
 

@@ -74,7 +74,7 @@ public class Transformers implements AbstractProcess {
         minMaxLearning.forEach((header, values) -> {
             Double min = values.get(MIN);
             Double max = values.get(MAX);
-            newDoc.put(MIN + "_" + MAX + "_" + header, minMaxMethod(min, max, Double.valueOf((String) row.get(header))));
+            newDoc.put(MIN + "_" + MAX + "_" + header, minMaxCalculator(min, max, Double.valueOf((String) row.get(header))));
         });
         return newDoc;
     }
@@ -128,7 +128,7 @@ public class Transformers implements AbstractProcess {
         }
     }
 
-    private static Double minMaxMethod(Double min, Double max, Double currentValue) {
+    private static Double minMaxCalculator(Double min, Double max, Double currentValue) {
         return (currentValue - min) / (max - min);
     }
 

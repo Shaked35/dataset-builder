@@ -4,10 +4,12 @@ import com.builder.utils.Utils;
 import org.bson.Document;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.builder.utils.Constants.*;
@@ -23,6 +25,7 @@ public class Statistics implements AbstractProcess {
     private final HashMap<String, HashMap<String, Double>> tmpPartitionValues = new HashMap<>();
     private LocalDate currentDate;
     private List<TableRow> rows = new ArrayList<>();
+    private static final AtomicInteger filedCounter = new AtomicInteger(0);
 
     private enum Function {
         AVG("Average"), SUM("Sum");
@@ -82,17 +85,26 @@ public class Statistics implements AbstractProcess {
 
     @Override
     public Document apply(Document row) {
-        if (!statistics.isEmpty()) {
-            LocalDate rowDate = LocalDate.parse(row.getString("date"), dateTimeFormatter);
-            if (!rowDate.equals(currentDate)) {
-                initializedNewDate(rowDate);
-                currentDate = rowDate;
-                tmpPartitionValues.clear();
+        try {
+            if (!statistics.isEmpty()) {
+                LocalDate rowDate = LocalDate.parse(row.getString("date"), dateTimeFormatter);
+                if (!rowDate.equals(currentDate)) {
+                    initializedNewDate(rowDate);
+                    currentDate = rowDate;
+                    tmpPartitionValues.clear();
+                }
+                updatePartition(row);
+                return addPartitionsValues(row);
             }
-            updatePartition(row);
-            return addPartitionsValues(row);
+            return new Document(row);
+        }catch (DateTimeParseException e){
+            if (filedCounter.get() == 0){
+                System.out.println(e.toString());
+                System.out.println("couldn't write a static object!");
+                filedCounter.addAndGet(1);
+            }
+            return new Document(row);
         }
-        return new Document(row);
     }
 
     private Document addPartitionsValues(Document row) {
@@ -116,12 +128,13 @@ public class Statistics implements AbstractProcess {
     }
 
     private void calculateCurrentPartition(PartitionBuilder partitionBuilder, Function function) {
-        List<Double> last7DaysValues = getLstDaysValues(partitionBuilder, valuesLast7Days, function);
-        List<Double> last14DaysValues = getLstDaysValues(partitionBuilder, valuesLast14Days, function);
+        List<Double> last7DaysValues = getLastDaysValues(partitionBuilder, valuesLast7Days, function);
+        List<Double> last14DaysValues = getLastDaysValues(partitionBuilder, valuesLast14Days, function);
         initializedNewPartitionValue(partitionBuilder, function, last7DaysValues, last14DaysValues);
     }
 
-    private void initializedNewPartitionValue(PartitionBuilder partitionBuilder, Function function, List<Double> last7DaysValues, List<Double> last14DaysValues) {
+    private void initializedNewPartitionValue(PartitionBuilder partitionBuilder, Function function,
+                                              List<Double> last7DaysValues, List<Double> last14DaysValues) {
         double days7;
         double days14;
         if (function.equals(Function.SUM)) {
@@ -140,9 +153,9 @@ public class Statistics implements AbstractProcess {
         tmpPartitionValues.put(partitionBuilder.newPartition, tmpDays);
     }
 
-    private List<Double> getLstDaysValues(PartitionBuilder partitionBuilder,
-                                          HashMap<LocalDate, HashMap<String, HashMap<String, Double>>> statisticValuesLastDays,
-                                          Function function) {
+    private List<Double> getLastDaysValues(PartitionBuilder partitionBuilder,
+                                           HashMap<LocalDate, HashMap<String, HashMap<String, Double>>> statisticValuesLastDays,
+                                           Function function) {
         List<Double> lastDaysValues = new ArrayList<>();
         statisticValuesLastDays.forEach((date, partition) -> {
             HashMap<String, Double> datePartition = partition.get(partitionBuilder.newPartition);
