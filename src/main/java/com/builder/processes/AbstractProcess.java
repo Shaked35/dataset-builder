@@ -7,7 +7,6 @@ import java.util.List;
 public interface AbstractProcess {
     /**
      * Add new value in the relevant process
-     *
      * @param header:         The name of the header that the client want.
      * @param conditionType:  Chosen condition by client.
      * @param conditionValue: Target value.
@@ -21,7 +20,6 @@ public interface AbstractProcess {
 
     /**
      * Return the row with process values.
-     *
      * @param row: The current row from file.
      */
     Document apply(Document row);
@@ -43,7 +41,6 @@ public interface AbstractProcess {
 
     /**
      * Remove specific row.
-     *
      * @param row: The row that the client want to remove.
      */
     void remove(TableRow row);
