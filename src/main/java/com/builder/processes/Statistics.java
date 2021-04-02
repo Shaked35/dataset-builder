@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.builder.utils.Constants.*;
-import static com.builder.utils.Constants.XHTML_SUFFIX;
 import static com.builder.utils.Utils.dateTimeFormatter;
 import static com.builder.utils.Utils.filterAndCollectTableRows;
 

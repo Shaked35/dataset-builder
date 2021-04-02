@@ -1,5 +1,6 @@
 package com.builder;
 
+import com.builder.processes.Statistics;
 import com.builder.processes.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -14,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -22,7 +22,6 @@ import java.util.function.Consumer;
 import static com.builder.utils.Constants.*;
 import static com.builder.utils.Utils.*;
 import static com.sun.org.apache.xerces.internal.impl.XMLEntityManager.DEFAULT_BUFFER_SIZE;
-import static java.nio.file.Files.probeContentType;
 
 
 @ManagedBean
