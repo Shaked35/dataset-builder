@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -21,6 +22,7 @@ import java.util.function.Consumer;
 import static com.builder.utils.Constants.*;
 import static com.builder.utils.Utils.*;
 import static com.sun.org.apache.xerces.internal.impl.XMLEntityManager.DEFAULT_BUFFER_SIZE;
+import static java.nio.file.Files.probeContentType;
 
 
 @ManagedBean
@@ -75,12 +77,16 @@ public class App {
     public void initializeFile() throws IOException {
         if (file != null) {
             try {
-                Reader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
-                fileParser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader);
-                headers = fileParser.getHeaderMap();
-                HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
-                        .getExternalContext().getResponse();
-                response.sendRedirect(WEB_PREFIX_URL + FILTERS + XHTML_SUFFIX);
+                if (file.getContentType().equals("text/csv")) {
+                    Reader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
+                    fileParser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader);
+                    headers = fileParser.getHeaderMap();
+                    HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                            .getExternalContext().getResponse();
+                    response.sendRedirect(WEB_PREFIX_URL + FILTERS + XHTML_SUFFIX);
+                }else{
+                    throw new IllegalStateException("Illegal file type");
+                }
             } catch (Exception e) {
                 HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
                         .getExternalContext().getResponse();
@@ -134,7 +140,7 @@ public class App {
                 .getExternalContext().getResponse();
         if (processName.equals(FILTERS) && !headers.containsKey("date"))
 
-            response.sendRedirect(WEB_PREFIX_URL + "statistics_without_date" + XHTML_SUFFIX);
+            response.sendRedirect(WEB_PREFIX_URL + "statisticsWithoutDate" + XHTML_SUFFIX);
         else {
             response.sendRedirect(this.processes.get(processName).nextPage());
         }

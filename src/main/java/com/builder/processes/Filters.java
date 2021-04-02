@@ -69,7 +69,7 @@ public class Filters implements AbstractProcess {
 
     @Override
     public String previous() {
-        return WEB_PREFIX_URL + "index" + XHTML_SUFFIX;
+        return WEB_PREFIX_URL + NEW_FILE + XHTML_SUFFIX;
     }
 
     @Override
