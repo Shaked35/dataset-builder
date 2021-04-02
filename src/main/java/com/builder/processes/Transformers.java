@@ -79,6 +79,10 @@ public class Transformers implements AbstractProcess {
         return newDoc;
     }
 
+    /**
+     * learn the feature values for each encoder.
+     * @param row: current row
+     */
     public void learn(Document row) {
         transformers.forEach(transformer -> {
             String header = transformer.keySet().iterator().next();
@@ -87,6 +91,12 @@ public class Transformers implements AbstractProcess {
         });
     }
 
+    /**
+     * calculate values for each encoder.
+     * @param encoder: encoder type min max or ordinal encoder
+     * @param row: current row
+     * @param header: target feature
+     */
     private void initializedEncoder(Document row, Encoder encoder, String header) {
         if (encoder == Encoder.MIN_MAX_SCALE) {
             minMaxLearning(row, header);
@@ -95,6 +105,11 @@ public class Transformers implements AbstractProcess {
         }
     }
 
+    /**
+     * Add new values for each feature.
+     * @param row: current row
+     * @param header: target feature
+     */
     private void ordinalEncoderLearning(Document row, String header) {
         String currentValue = String.valueOf(row.get(header));
         if (ordinalEncoderLearning.containsKey(header)) {
@@ -109,15 +124,20 @@ public class Transformers implements AbstractProcess {
         }
     }
 
+    /**
+     * Calculate each minimum and maximum value for each feature.
+     * @param row: current row
+     * @param header: target feature
+     */
     private void minMaxLearning(Document row, String header) {
         Double currentValue = Double.valueOf((String) row.get(header));
         if (minMaxLearning.containsKey(header)) {
             Double min = minMaxLearning.get(header).get(MIN);
             Double max = minMaxLearning.get(header).get(MAX);
-            if (currentValue < min) {
+            if (currentValue <= min) {
                 minMaxLearning.get(header).put(MIN, currentValue);
             }
-            if (currentValue < max) {
+            if (currentValue >= max) {
                 minMaxLearning.get(header).put(MAX, currentValue);
             }
         } else {
@@ -128,8 +148,19 @@ public class Transformers implements AbstractProcess {
         }
     }
 
+    /**
+     * Calculate current min max value.
+     * @param min: min value in column
+     * @param max: max value in column
+     * @param currentValue: this row feature value
+     * @return calculated value
+     */
     private static Double minMaxCalculator(Double min, Double max, Double currentValue) {
-        return (currentValue - min) / (max - min);
+        if (max.equals(min)) {
+            return 0.0;
+        }else {
+            return (currentValue - min) / (max - min);
+        }
     }
 
     @Override

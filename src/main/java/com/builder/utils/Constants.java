@@ -5,6 +5,7 @@ public class Constants {
     public static final String TRANSFORMERS = "transformers";
     public static final String FILTERS = "filters";
     public static final String Statistics = "statistics";
+    public static final String NEW_FILE = "newFile";
     public static final String XHTML_SUFFIX = ".xhtml";
     public static final String CONTENT_TYPE = "application/octet-stream";
     public static final String LAST_7 = "-last7Days";

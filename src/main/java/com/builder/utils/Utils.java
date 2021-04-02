@@ -49,12 +49,22 @@ public class Utils {
         };
     }
 
+    /**
+     * Filter the target rows and collect to a new list.
+     * @param row: target row
+     * @return true if the target row not equals to the current row
+     */
     public static List<TableRow> filterAndCollectTableRows(TableRow row, List<TableRow> rows) {
         return rows.stream().filter(
                 condition -> !condition.equals(row)
         ).collect(Collectors.toList());
     }
 
+    /**
+     * Get stream of rows of csv.
+     * @param fileParser: target row
+     * @return stream of rows as document
+     */
     public static Stream<Document> streamFile(CSVParser fileParser) {
         return StreamSupport.stream(fileParser.spliterator(), false).map(record -> {
             Document document = new Document();
@@ -63,6 +73,9 @@ public class Utils {
         });
     }
 
+    /**
+     * Sort stream Document by date column (must be in format: yyyy-MM-dd).
+     */
     public static Comparator<? super Document> sortByDate() {
         return (d1, d2)->{
             try {
@@ -75,6 +88,12 @@ public class Utils {
         };
     }
 
+    /**
+     * Write one row to output file.
+     * @param writer: writer.
+     * @param headers: output headers.
+     * @param row: current row.
+     */
     public static void writeToFile(CSVPrinter writer, List<String> headers, Document row) throws IOException {
         List<String> rowToString = headers.stream()
                 .map(head -> row.get(head) == null ? "nil" : String.valueOf(row.get(head)))
@@ -86,6 +105,14 @@ public class Utils {
         actual.printRecord(row);
     }
 
+    /**
+     * Write headers for the first time.
+     * @param counter: number of rows
+     * @param firstRow: bool if this is the first row
+     * @param csvPrinter: final printer
+     * @param headersToPrint: output headers
+     * @param headers: source headers
+     */
     public static void addNewHeaders(AtomicInteger counter, Document firstRow, CSVPrinter csvPrinter,
                                List<String> headersToPrint, Map<String, Integer> headers) throws IOException {
         if (counter.get() == 0){

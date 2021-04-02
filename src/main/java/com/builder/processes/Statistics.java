@@ -170,8 +170,8 @@ public class Statistics implements AbstractProcess {
         valuesLast7Days = filterLastDays(rowDate.minusDays(7), new HashMap<>(valuesLast7Days));
         valuesLast14Days = filterLastDays(rowDate.minusDays(14), new HashMap<>(valuesLast14Days));
         if (currentDate != null) {
-            valuesLast7Days.put(currentDate, currentDateData);
-            valuesLast14Days.put(currentDate, currentDateData);
+            valuesLast7Days.put(currentDate, new HashMap<>(currentDateData));
+            valuesLast14Days.put(currentDate, new HashMap<>(currentDateData));
         }
         currentDateData.clear();
 

@@ -44,12 +44,18 @@ public class Login {
     public void login() throws IOException, SQLException, ClassNotFoundException, ParseException {
         Connection connection = databaseConnection();
         if (isValidUser(connection)) {
-            HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
-                    .getExternalContext().getResponse();
-            response.sendRedirect(WEB_PREFIX_URL + "newFile" + XHTML_SUFFIX);
+            startNewProcess();
         } else {
             userMessage = "The user name and password doesn't exist, please try again";
         }
+    }
+
+    private void startNewProcess() throws IOException {
+        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                .getExternalContext().getResponse();
+        setPassword(null);
+        setUsername(null);
+        response.sendRedirect(WEB_PREFIX_URL + NEW_FILE + XHTML_SUFFIX);
     }
 
     public String getUserMessage() {
@@ -66,9 +72,7 @@ public class Login {
             Connection connection = databaseConnection();
             if (!isUserAlreadyExist(connection)) {
                 insertUser(connection);
-                HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
-                        .getExternalContext().getResponse();
-                response.sendRedirect(WEB_PREFIX_URL + "newFile" + XHTML_SUFFIX);
+                startNewProcess();
             } else {
                 userMessage = "The user name is already exist, please peek another one";
             }
